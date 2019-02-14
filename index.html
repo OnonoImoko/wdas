@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="utf-8">
+<title>妹子ナビ</title>
+<meta name="description" content="世界測地系DMSからカーナビ座標を表示">
+<meta name="author" content="上から読んでも下から読んでも">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@1.0.0/build/pure-min.css">
+<!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<style>
+
+body {
+  padding: 5px;
+  text-align: center;
+}
+.button-success,
+.button-erase {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.button-success {background: rgb(28, 184, 65); /* this is a green */}
+.button-erase {background: rgb(202, 60, 60); /* this is a maroon */}
+p {margin-right: 3px;}
+
+.world_deg {
+  display: block;
+  margin-bottom: 3px;
+}
+#yahoo_map,
+#google_map {
+  margin-top: 10px;
+  padding: 0;
+  font-weight: bold;
+}
+
+</style>
+<link rel="shortcut icon" href="">
+</head>
+<body>
+  <div>世界測地系座標からカーナビ座標</div>
+    <form name="dms">
+      <label class="latitude">
+        <div>[GoogleMap座標(D形式)を入力]</div>
+            <input type="tel" id="world_deg" maxlength="100" placeholder="ここへ貼り付け" />
+      </label>
+    </form>
+    <br/>
+      <button class="button-success pure-button">実行</button>
+      <button class="button-erase pure-button">消去</button>
+
+<div id="yahoo_map"><a href = "" target=”_new”>Yahoo Maps</a></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+<script>
+u(".button-success").on('click', function(){
+    var lat_lon = u("#world_deg").nodes[0].value;
+        lat_lon = lat_lon.split(",");
+
+    var world = get_japan_latlng(lat_lon[0], lat_lon[1]);
+
+u("#yahoo_map a").attr("href", 'https://map.yahoo.co.jp/maps?lat=' + world.lat + '&lon=' + world.lng + '&datum=tky&z=16&mode=map');
+  //console.log(world);
+  console.log("早くおうちに帰りましょう");
+});
+
+u(".button-erase").on('click', function(){
+  u("#world_deg").nodes[0].value = '';
+});
+
+//日本測地系　=>　世界測地系
+function get_japan_latlng(lat, lng) {
+var japan_lat = lat * 1.000106961 - lng * 0.000017467 - 0.004602017,
+    japan_lng = lng * 1.000083049 + lat * 0.000046047 - 0.010041046;
+return {
+  lat: japan_lat,
+  lng: japan_lng
+  };
+}
+//
+</script>
+</body>
+</html>
