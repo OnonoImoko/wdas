@@ -24,13 +24,21 @@ body {
     border-radius: 4px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
-.button-success {background: rgb(28, 184, 65); /* this is a green */}
-.button-erase {background: rgb(202, 60, 60); /* this is a maroon */}
-p {margin-right: 3px;}
-
+.button-success {
+  background: rgb(28, 184, 65); /* this is a green */
+}
+.button-erase {
+  background: rgb(202, 60, 60); /* this is a maroon */
+}
+p {
+  margin-right: 3px;
+}
 .world_deg {
   display: block;
   margin-bottom: 3px;
+}
+#dms_text{
+  font-weight: bold;
 }
 #yahoo_map,
 #google_map {
@@ -43,14 +51,15 @@ p {margin-right: 3px;}
 <link rel="shortcut icon" href="">
 </head>
 <body>
-  <div>世界測地系座標からカーナビ座標</div>
+  <div>世界測地系座標から日本測地系カーナビ座標へ</div>
     <form name="dms">
-      <label class="latitude">
-        <div>[GoogleMap座標(D形式)を入力]</div>
+      <label>
+        <div>[GoogleMap座標(DEG形式)を入力]</div>
             <input type="tel" id="world_deg" maxlength="100" placeholder="ここへ貼り付け" />
       </label>
     </form>
     <br/>
+    <div id="dms_text"></div>
       <button class="button-success pure-button">実行</button>
       <button class="button-erase pure-button">消去</button>
 
@@ -60,13 +69,17 @@ p {margin-right: 3px;}
 <script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
 <script>
 u(".button-success").on('click', function(){
-    var lat_lon = u("#world_deg").nodes[0].value;
-        lat_lon = lat_lon.split(",");
+  var lat_lon = u("#world_deg").nodes[0].value;
+      lat_lon = lat_lon.split(",");
 
-    var world = get_japan_latlng(lat_lon[0], lat_lon[1]);
+  var japan = get_japan_latlng(lat_lon[0], lat_lon[1]);
 
-u("#yahoo_map a").attr("href", 'https://map.yahoo.co.jp/maps?lat=' + world.lat + '&lon=' + world.lng + '&datum=tky&z=16&mode=map');
-  //console.log(world);
+  u("#yahoo_map a").attr("href", 'https://map.yahoo.co.jp/maps?lat=' + japan.lat + '&lon=' + japan.lng + '&datum=tky&z=16&mode=map');
+  //console.log(japan);
+
+  var dms_format = view_dms(japan.lat, japan.lng);
+  u("#dms_text").text('[経度] ' + dms_format.lat + ' [緯度] ' + dms_format.lng);
+
   console.log("早くおうちに帰りましょう");
 });
 
@@ -76,14 +89,39 @@ u(".button-erase").on('click', function(){
 
 //日本測地系　=>　世界測地系
 function get_japan_latlng(lat, lng) {
-var japan_lat = lat * 1.000106961 - lng * 0.000017467 - 0.004602017,
-    japan_lng = lng * 1.000083049 + lat * 0.000046047 - 0.010041046;
+var japan_lat = lat * 1.000106961 - lng * 0.000017467 - 0.004602017;
+var japan_lng = lng * 1.000083049 + lat * 0.000046047 - 0.010041046;
 return {
   lat: japan_lat,
   lng: japan_lng
   };
 }
-//
+
+//DEG表記をDMS表記へ変更（10進法を60進法へ）
+function view_dms(lat, lng) {
+//経度
+var deg_lat = parseInt(lat);
+var deg_point_lat = lat - deg_lat;
+var min_lat = parseInt(deg_point_lat * 60);
+var sec_lat = ((deg_point_lat * 60) - min_lat) * 60;
+console.log('sec_lat ' + sec_lat);
+
+//緯度
+var deg_lng = [parseInt(lng)];
+var deg_point_lng = lng - deg_lng;
+var min_lng = parseInt(deg_point_lng * 60);
+var sec_lng = ((deg_point_lng * 60) - min_lng) * 60;
+
+//DMS形式に整形
+var view_lat = deg_lat + '・' + min_lat + '・' + sec_lat.toFixed(1);
+var view_lng = deg_lng + '・' + min_lng + '・' + sec_lng.toFixed(1);
+
+return {
+  lat: view_lat,
+  lng: view_lng
+  };
+}
+
 </script>
 </body>
 </html>
